@@ -8,7 +8,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(denominal  denominal_hashref  denominal_list);
 
-our $VERSION = '1.001';
+our $VERSION = '1.002';
 
 my %Unit_Shortcuts = (
     time    => [
@@ -152,6 +152,8 @@ Number::Denominal - break up numbers into arbitrary denominations
                 60 => [ qw/minute minutes/ ] =>
                     60 => [ qw/hour hours/ ]
         );
+    ## Prints: So far today you lived for 23 hours,
+    ## 48 minutes, and 23 seconds
 
     # Same thing but with a 'time' unit set shortcut:
     say 'So far today you lived for ', denominal($seconds, \'time');
@@ -162,12 +164,17 @@ Number::Denominal - break up numbers into arbitrary denominations
             # This is a shortcut for units that pluralize by adding "s"
             $seconds, second => 100 => minute => 100 => 'hour',
         );
+    ## Prints: If there were 100 seconds in a minute, and 100 minutes
+    ## in an hour, then you would have lived today for 8 hours, 57 minutes,
+    ## and 3 seconds
 
     say 'And if we called seconds "foos," minutes "bars," and hours "bers"',
         ' then you would have lived today for ',
         denominal(
             $seconds, foo => 100 => bar => 100 => 'ber',
         );
+    ## Prints: And if we called seconds "foos," minutes "bars," and hours
+    ## "bers" then you would have lived today for 8 bers, 57 bars, and 3 foos
 
     ## You can get the denominalized data as a list:
     my @data = denominal_list(
@@ -183,6 +190,8 @@ Number::Denominal - break up numbers into arbitrary denominations
     );
 
 =head1 DESCRIPTION
+
+Define arbitrary set of units and split up a number into those units.
 
 This module arose from a discussion in IRC, regarding splitting
 a number of seconds into minutes, hours, days...
@@ -386,9 +395,9 @@ will be absent from the hashref.
 
 =over 4
 
-=item B<Idea:> Paul Evans, C<< <pevans at cpan.org> >>
+=item * B<Idea:> Paul Evans, C<< <pevans at cpan.org> >>
 
-=item B<Code:> Zoffix Znet, C<< <zoffix at cpan.org> >>
+=item * B<Code:> Zoffix Znet, C<< <zoffix at cpan.org> >>
 
 =back
 
