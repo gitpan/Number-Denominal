@@ -1,0 +1,17 @@
+Build.PL
+Changes
+lib/Number/Denominal.pm
+examples/denominate.pl
+MANIFEST
+README
+LICENSE
+t/00-load.t
+t/01-string.t
+t/02-list.t
+t/03-hashref.t
+xt/pod-coverage.t
+xt/pod.t
+xt/kwalitee.t
+Makefile.PL
+META.yml
+META.json

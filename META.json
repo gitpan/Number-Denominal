@@ -1,0 +1,49 @@
+{
+   "abstract" : "break up numbers into arbitrary denominations",
+   "author" : [
+      "Zoffix Znet <zoffix@cpan.org>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.4007, CPAN::Meta::Converter version 2.132830",
+   "license" : [
+      "artistic_2"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Number-Denominal",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Test::More" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Carp" : "1.26",
+            "Exporter" : "0",
+            "List::ToHumanString" : "1.002",
+            "perl" : "5.006"
+         }
+      }
+   },
+   "provides" : {
+      "Number::Denominal" : {
+         "file" : "lib/Number/Denominal.pm",
+         "version" : "1.001"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://www.perlfoundation.org/artistic_license_2_0"
+      ]
+   },
+   "version" : "1.001"
+}
