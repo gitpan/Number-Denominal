@@ -3,6 +3,7 @@ abstract: 'break up numbers into arbitrary denominations'
 author:
   - 'Zoffix Znet <zoffix@cpan.org>'
 build_requires:
+  Test::Deep: 0.112
   Test::More: 0
 configure_requires:
   Module::Build: 0
@@ -16,7 +17,7 @@ name: Number-Denominal
 provides:
   Number::Denominal:
     file: lib/Number/Denominal.pm
-    version: 1.002
+    version: 1.003
 requires:
   Carp: 1.26
   Exporter: 0
@@ -24,4 +25,4 @@ requires:
   perl: 5.006
 resources:
   license: http://www.perlfoundation.org/artistic_license_2_0
-version: 1.002
+version: 1.003

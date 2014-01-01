@@ -9,6 +9,7 @@ WriteMakefile
                    'Carp' => '1.26',
                    'Exporter' => 0,
                    'List::ToHumanString' => '1.002',
+                   'Test::Deep' => '0.112',
                    'Test::More' => 0
                  },
   'INSTALLDIRS' => 'site',

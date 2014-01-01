@@ -8,7 +8,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(denominal  denominal_hashref  denominal_list);
 
-our $VERSION = '1.002';
+our $VERSION = '1.003';
 
 my %Unit_Shortcuts = (
     time    => [
@@ -185,7 +185,7 @@ Number::Denominal - break up numbers into arbitrary denominations
     my @data = denominal_list(  $seconds, [ 100, 100 ], );
 
     ## Or get the data as a hashref:
-    my $data = denominal_list(
+    my $data = denominal_hashref(
         $seconds, foo => 100 => bar => 100 => 'ber',
     );
 

@@ -1,5 +1,9 @@
 Revision history for Number-Denominal
 
+1.003   2013-12-31
+        - Fixed broken test prereqs
+        - Fixed SYNOPSIS error
+
 1.002   2013-12-30
         - Made it a bit more obvious what the module actually does
 

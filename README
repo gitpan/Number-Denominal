@@ -45,7 +45,7 @@ SYNOPSIS
         my @data = denominal_list(  $seconds, [ 100, 100 ], );
 
         ## Or get the data as a hashref:
-        my $data = denominal_list(
+        my $data = denominal_hashref(
             $seconds, foo => 100 => bar => 100 => 'ber',
         );
 
