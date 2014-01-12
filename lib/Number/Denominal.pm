@@ -8,7 +8,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(denominal  denominal_hashref  denominal_list);
 
-our $VERSION = '1.003';
+our $VERSION = '1.004';
 
 my %Unit_Shortcuts = (
     time    => [

@@ -1,5 +1,8 @@
 Revision history for Number-Denominal
 
+1.004   2014-01-11
+        - Fixed POD grammatical error
+
 1.003   2013-12-31
         - Fixed broken test prereqs
         - Fixed SYNOPSIS error
