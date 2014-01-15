@@ -8,92 +8,86 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(denominal  denominal_hashref  denominal_list);
 
-our $VERSION = '1.004';
+our $VERSION = '1.101';
 
-my %Unit_Shortcuts = (
-    time    => [
-        second => 60 => minute => 60 => hour => 24 => day => 7 => 'week'
-    ],
-    weight  => [
-        gram => 1000 => kilogram => 1000 => 'tonne',
-    ],
-    weight_imperial => [
-       ounce => 16 => pound => 14 => stone => 160 => 'ton',
-    ],
-    length  => [
-       meter => 1000 => kilometer => 9_460_730_472.5808 => 'light year',
-    ],
-    length_mm  => [
-       millimeter => 10 => centimeter => 100 => meter => 1000
-            => kilometer => 9_460_730_472.5808 => 'light year',
-    ],
-    length_imperial => [
-        [qw/inch  inches/] => 12 =>
-            [qw/foot  feet/] => 3 => yard => 1760
-                => [qw/mile  miles/],
-    ],
-    volume => [
-       milliliter => 1000 => 'Liter',
-    ],
-    volume_imperial => [
-       'fluid ounce' => 20 => pint => 2 => quart => 4 => 'gallon',
-    ],
-    info => [
-        bit => 8 => byte => 1000 => kilobyte => 1000 => megabyte => 1000
-            => gigabyte => 1000 => terabyte => 1000 => petabyte => 1000
-                => exabyte => 1000 => zettabyte => 1000 => 'yottabyte',
-    ],
-    info_1024  => [
-        bit => 8 => byte => 1024 => kibibyte => 1024 => mebibyte => 1024
-            => gibibyte => 1024 => tebibyte => 1024 => pebibyte => 1024
-                => exbibyte => 1024 => zebibyte => 1024 => 'yobibyte',
-    ],
-);
+
 
 sub denominal {
-    my ( $num, @denomination ) = @_;
-    return _denominal( $num, \@denomination, 'string' );
+    my ( $num, @den ) = @_;
+    return _denominal( $num, \@den, 'string' );
 }
 
 sub denominal_list {
-    my ( $num, @denomination ) = @_;
-    return _denominal( $num, \@denomination, 'list' );
+    my ( $num, @den ) = @_;
+    return _denominal( $num, \@den, 'list' );
 }
 
 sub denominal_hashref {
-    my ( $num, @denomination ) = @_;
-    return _denominal( $num, \@denomination, 'hashref' );
+    my ( $num, @den ) = @_;
+    return _denominal( $num, \@den, 'hashref' );
 }
 
 sub _denominal {
-    my ( $num, $denomination, $mode ) = @_;
+    my ( $num, $den, $mode ) = @_;
 
-    $num = abs($num);
+    $num     =  abs $num;
+    my $args = _prepare_extra_args( $den );
+    $den     = _process_den( $mode, $den );
 
-    if ( @$denomination == 1 and ref $denomination->[0] eq 'ARRAY' ) {
-        @$denomination = map +( $_ => $_ ), @{ $denomination->[0] };
-        push @$denomination, 'last';
-        $mode = 'list';
-    }
-    elsif ( @$denomination == 1 and ref $denomination->[0] eq 'SCALAR' ) {
+    my @bits;
+    my $step = 1; # steps for precision, if enabled
+    my $pre_bit;  # a "pre" bit, again for precision to handle rounding.
+    for my $bit ( _get_bits( $num, @$den ) ) {
+        $bit->{num} = sprintf '%d', $num / $bit->{divisor};
+        $num = $num - $bit->{num} * $bit->{divisor};
 
-        my $unit_shortcut = ${ $denomination->[0] };
-        croak qq{Unknown unit shortcut ``$unit_shortcut''}
-            unless $Unit_Shortcuts{ $unit_shortcut };
-        $denomination = $Unit_Shortcuts{ $unit_shortcut };
+        if ( @bits
+            and $args->{precision} and ++$step > $args->{precision}
+        ) {
+            last unless $bit->{num};
+
+            # add current element and pre bit, for sake of calculations
+            # I should really really refactor this crap to something sane
+            unshift @bits, $pre_bit;
+            push @bits, +{ %$bit };
+
+            for ( reverse 0 .. $#bits ) {
+                # increase the previous number if we have to round
+                $bits[$_-1]{num}++
+                    if $bits[$_]{num} * $bits[$_]{divisor}
+                        / $bits[$_-1]{divisor} >= 0.5;
+
+                $bits[$_]{num} = 0
+                    if $bits[$_]{num} * $bits[$_]{divisor}
+                        / $bits[$_-1]{divisor} == 1;
+
+                # stop checking previous numbers if we ran out of them
+                # or they haven't reached their limit (divisor) yet.
+                last if $_ == 0
+                    or $bits[$_-1]{num} * $bits[$_-1]{divisor}
+                        < $bits[$_-2]{divisor};
+            }
+
+            # pop last element off, since it was temporary
+            pop @bits;
+
+            # get rid of els with zero nums (including pre bit)
+            @bits = grep $_->{num}, @bits;
+            last;
+        }
+
+        $pre_bit = $bit unless $bit->{num};
+        $bit->{num} or next; # don't insert the bit, if it's zero
+        push @bits, +{ %$bit };
     }
 
     my @result;
-    for ( _get_bits( $num, @$denomination ) ) {
-        my $bit_num = sprintf '%d', $num / $_->{divisor};
-        $num = $num - $bit_num * $_->{divisor};
-        $bit_num or next;
-
-        push @result, $mode eq 'hashref'
-            ? ( $_->{name}[0] => $bit_num )
-                : $mode eq 'list'
-                    ? $bit_num
-                    : $bit_num . ' ' . $_->{name}[ $bit_num == 1 ? 0 : 1 ];
+    # process the bits into output format, depending on what type
+    # ... of output is wanted
+    for ( @bits ) {
+        push @result, $mode eq 'hashref' ? ( $_->{name}[0] => $_->{num} )
+            : $mode eq 'list' ? $_->{num}
+                : $_->{num} . ' ' . $_->{name}[ $_->{num} == 1 ? 0 : 1 ];
     }
 
     return $mode eq 'hashref'
@@ -103,27 +97,106 @@ sub _denominal {
 }
 
 sub _get_bits {
-    my ( $num, @denomination ) = @_;
+    my ( $num, @den ) = @_;
 
     my @bits;
     my $divisor = 1;
-    for ( grep !($_%2), 0..$#denomination ) {
-        if ( not ref $denomination[ $_ ] ) {
-            $denomination[ $_ ] = [
-                $denomination[ $_ ],
-                $denomination[ $_ ] . 's',
+    for ( grep !($_%2), 0..$#den ) {
+        if ( not ref $den[ $_ ] ) {
+            $den[ $_ ] = [
+                $den[ $_ ],
+                $den[ $_ ] . 's',
             ];
         }
 
         push @bits, {
-            name    => $denomination[ $_ ],
+            name    => $den[ $_ ],
             divisor => $divisor,
         };
 
-        $divisor *= $denomination[ $_+1 ] || 1;
+        $divisor *= $den[ $_+1 ] || 1;
     }
 
     return reverse @bits;
+}
+
+sub _process_den {
+    my ( $mode, $den ) = @_;
+
+    if ( @$den == 1 and ref $den->[0] eq 'ARRAY' ) {
+        @$den = map +( $_ => $_ ), @{ $den->[0] };
+        push @$den, 'last';
+        $mode = 'list';
+    }
+    elsif ( @$den == 1 and ref $den->[0] eq 'SCALAR' ) {
+        my $unit_shortcut = ${ $den->[0] };
+        my $values_for_unit = _get_units()->{ $unit_shortcut };
+
+        croak qq{Unknown unit shortcut ``$unit_shortcut''}
+            unless $values_for_unit;
+        $den = $values_for_unit;
+    }
+
+    return $den;
+}
+
+sub _prepare_extra_args {
+    my $den = shift;
+
+    return unless ref $den->[-1] eq 'HASH';
+
+    my %extra_args = %{ delete $den->[-1] };
+
+    if ( exists $extra_args{precision} ) {
+        my $p = $extra_args{precision};
+        croak q{precision argument takes positive integers only,}
+            . q{ but its value is } . (defined $p ? $p : '[undefined]')
+            unless $p and $p =~ /\A\d+\z/;
+    }
+
+    return \%extra_args;
+}
+
+sub _get_units {
+    return {
+        time    => [
+            second => 60 => minute => 60 => hour => 24 => day => 7 => 'week'
+        ],
+        weight  => [
+            gram => 1000 => kilogram => 1000 => 'tonne',
+        ],
+        weight_imperial => [
+           ounce => 16 => pound => 14 => stone => 160 => 'ton',
+        ],
+        length  => [
+           meter => 1000 => kilometer => 9_460_730_472.5808 => 'light year',
+        ],
+        length_mm  => [
+           millimeter => 10 => centimeter => 100 => meter => 1000
+                => kilometer => 9_460_730_472.5808 => 'light year',
+        ],
+        length_imperial => [
+            [qw/inch  inches/] => 12 =>
+                [qw/foot  feet/] => 3 => yard => 1760
+                    => [qw/mile  miles/],
+        ],
+        volume => [
+           milliliter => 1000 => 'Liter',
+        ],
+        volume_imperial => [
+           'fluid ounce' => 20 => pint => 2 => quart => 4 => 'gallon',
+        ],
+        info => [
+            bit => 8 => byte => 1000 => kilobyte => 1000 => megabyte => 1000
+                => gigabyte => 1000 => terabyte => 1000 => petabyte => 1000
+                    => exabyte => 1000 => zettabyte => 1000 => 'yottabyte',
+        ],
+        info_1024  => [
+            bit => 8 => byte => 1024 => kibibyte => 1024 => mebibyte => 1024
+                => gibibyte => 1024 => tebibyte => 1024 => pebibyte => 1024
+                    => exbibyte => 1024 => zebibyte => 1024 => 'yobibyte',
+        ],
+    };
 }
 
 q|
@@ -144,7 +217,8 @@ Number::Denominal - break up numbers into arbitrary denominations
 
     use Number::Denominal;
 
-    my $seconds = (localtime)[2]*3600 + (localtime)[1]*60 + (localtime)[2];
+    my ( $sec, $min, $hr ) = (localtime)[0..2];
+    my $seconds = $hr*3600 + $min*60 + $sec;
 
     say 'So far today you lived for ',
         denominal($seconds,
@@ -189,6 +263,11 @@ Number::Denominal - break up numbers into arbitrary denominations
         $seconds, foo => 100 => bar => 100 => 'ber',
     );
 
+    # We can also handle precision (with rounding):
+    print denominal( 3*3600 + 31*60 + 40, \'time', { precision => 2 } ),
+    # Prints '3 hours and 32 minutes'
+);
+
 =head1 DESCRIPTION
 
 Define arbitrary set of units and split up a number into those units.
@@ -221,6 +300,10 @@ released it.
                     24 => day => 7 => 'week',
     );
 
+
+    # Specify precision:
+    my $string = denominal( $number, \'time', { precision => 2 } );
+
 Breaks up the number into given denominations and B<returns> it as a
 human-readable string (e.g. C<"5 hours, 22 minutes, and 4 seconds">.
 If the value for any unit ends up being zero, that unit will be omitted
@@ -235,6 +318,10 @@ with a unit name and end with a unit name, and each unit name must be
 separated by a number that represents how many left-side units fit into the
 right-side unit. B<Unit name> can be an arrayref, a simple string,
 or a scalarref. The meaning is as follows:
+
+B<The last argument> is optional and, if present, is given as a
+hashref. It specifies various options. See C<OPTIONS HASHREF> section
+below for possible values.
 
 =head3 an arrayref
 
@@ -351,7 +438,75 @@ follows:
                 => exbibyte => 1024 => zebibyte => 1024 => 'yobibyte',
     ],
 
+=head3 OPTIONS HASHREF
+
+    my $string = denominal( $number, \'time', { precision => 2 } );
+
+    my $string = denominal(
+        $number,
+        second => 60 => minute => 60 => hour => 24 => day => 7 => 'week'
+        { precision => 2 },
+    );
+
+    my $string = denominal(
+        $number,
+        [ qw/second seconds/ ] =>
+            60 => [ qw/minute minutes/ ] =>
+                60 => [ qw/hour hours/ ] =>
+                    24 => day => 7 => 'week',
+        { precision => 2 },
+    );
+
+If the last argument to C<denominal()> (or C<denominal_hashref()>
+or C<denominal_list()>) is a hashref, its contents will be interpreted
+as various options, dictating specifics of how the number should be
+denominated. Currently supported values are as follows:
+
+=head4 C<precision>
+
+    my $string = denominal( $number, \'time', { precision => 2 } );
+
+B<Takes> a positive integer as a value. Specifies precision of output.
+This means the output will have at most C<precision> number of different
+units. B<Rounding> is in place for units smaller than C<precision>.
+
+For example,
+
+    denominal( 3*3600 + 31*60 + 1, \'time', );
+
+will output C<3 hours, 31 minutes, and 1 second>. If we set C<precision>to
+C<2> units:
+
+    denominal( 3*3600 + 31*60 + 40, \'time', { precision => 2 } );
+
+The output will be C<3 hours and 32 minutes> (note how the minutes got
+rounded, because 40 seconds is more than half a minute). Further, if
+we set C<precision> to C<1> unit:
+
+    denominal( 3*3600 + 31*60 + 1, \'time', { precision => 1} );
+
+We'll get C<4 hours> as output.
+
+It is possible to get fewer than C<precision> units in the output, even
+if without precion you'd get more than 1. For example,
+
+    denominal( 23*3600 + 59*60 + 59, \'time', );
+
+Would output C<23 hours, 59 minutes, and 59 seconds>. Now, if we set
+C<precision> to C<2> units:
+
+    denominal( 23*3600 + 59*60 + 59, \'time', { precision => 2 } );
+
+The output will be C<1 day>. What happens is a 2-unit precision rounds
+off to C<23 hours and 60 seconds>, which rounds off to C<24 hours>, and
+we have a larger unit that is equal to 24 hours: C<1 day>.
+
 =head2 C<denominal_list>
+
+B<BUG BUG BUG!!!!> Currently, C<denominal_list> would plainly return
+the unitless numbers, regardless of what unit they belong to, so it's
+pretty useless, especially when using
+C<< { precision => FOO } >> option. Fix will come in soon :)
 
     ## These two are equivalent
 

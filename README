@@ -4,7 +4,8 @@ NAME
 SYNOPSIS
         use Number::Denominal;
 
-        my $seconds = (localtime)[2]*3600 + (localtime)[1]*60 + (localtime)[2];
+        my ( $sec, $min, $hr ) = (localtime)[0..2];
+        my $seconds = $hr*3600 + $min*60 + $sec;
 
         say 'So far today you lived for ',
             denominal($seconds,
@@ -49,6 +50,11 @@ SYNOPSIS
             $seconds, foo => 100 => bar => 100 => 'ber',
         );
 
+        # We can also handle precision (with rounding):
+        print denominal( 3*3600 + 31*60 + 40, \'time', { precision => 2 } ),
+        # Prints '3 hours and 32 minutes'
+    );
+
 DESCRIPTION
     Define arbitrary set of units and split up a number into those units.
 
@@ -77,6 +83,10 @@ EXPORTS
                         24 => day => 7 => 'week',
         );
 
+
+        # Specify precision:
+        my $string = denominal( $number, \'time', { precision => 2 } );
+
     Breaks up the number into given denominations and returns it as a
     human-readable string (e.g. "5 hours, 22 minutes, and 4 seconds". If the
     value for any unit ends up being zero, that unit will be omitted (an
@@ -91,6 +101,10 @@ EXPORTS
     represents how many left-side units fit into the right-side unit. Unit
     name can be an arrayref, a simple string, or a scalarref. The meaning is
     as follows:
+
+    The last argument is optional and, if present, is given as a hashref. It
+    specifies various options. See "OPTIONS HASHREF" section below for
+    possible values.
 
    an arrayref
         my $string = denominal(
@@ -193,7 +207,73 @@ EXPORTS
                     => exbibyte => 1024 => zebibyte => 1024 => 'yobibyte',
         ],
 
+   OPTIONS HASHREF
+        my $string = denominal( $number, \'time', { precision => 2 } );
+
+        my $string = denominal(
+            $number,
+            second => 60 => minute => 60 => hour => 24 => day => 7 => 'week'
+            { precision => 2 },
+        );
+
+        my $string = denominal(
+            $number,
+            [ qw/second seconds/ ] =>
+                60 => [ qw/minute minutes/ ] =>
+                    60 => [ qw/hour hours/ ] =>
+                        24 => day => 7 => 'week',
+            { precision => 2 },
+        );
+
+    If the last argument to "denominal()" (or "denominal_hashref()" or
+    "denominal_list()") is a hashref, its contents will be interpreted as
+    various options, dictating specifics of how the number should be
+    denominated. Currently supported values are as follows:
+
+   "precision"
+        my $string = denominal( $number, \'time', { precision => 2 } );
+
+    Takes a positive integer as a value. Specifies precision of output. This
+    means the output will have at most "precision" number of different
+    units. Rounding is in place for units smaller than "precision".
+
+    For example,
+
+        denominal( 3*3600 + 31*60 + 1, \'time', );
+
+    will output "3 hours, 31 minutes, and 1 second". If we set "precision"to
+    2 units:
+
+        denominal( 3*3600 + 31*60 + 40, \'time', { precision => 2 } );
+
+    The output will be "3 hours and 32 minutes" (note how the minutes got
+    rounded, because 40 seconds is more than half a minute). Further, if we
+    set "precision" to 1 unit:
+
+        denominal( 3*3600 + 31*60 + 1, \'time', { precision => 1} );
+
+    We'll get "4 hours" as output.
+
+    It is possible to get fewer than "precision" units in the output, even
+    if without precion you'd get more than 1. For example,
+
+        denominal( 23*3600 + 59*60 + 59, \'time', );
+
+    Would output "23 hours, 59 minutes, and 59 seconds". Now, if we set
+    "precision" to 2 units:
+
+        denominal( 23*3600 + 59*60 + 59, \'time', { precision => 2 } );
+
+    The output will be "1 day". What happens is a 2-unit precision rounds
+    off to "23 hours and 60 seconds", which rounds off to "24 hours", and we
+    have a larger unit that is equal to 24 hours: "1 day".
+
   "denominal_list"
+    BUG BUG BUG!!!! Currently, "denominal_list" would plainly return the
+    unitless numbers, regardless of what unit they belong to, so it's pretty
+    useless, especially when using "{ precision => FOO }" option. Fix will
+    come in soon :)
+
         ## These two are equivalent
 
         my @bits = denominal_list(

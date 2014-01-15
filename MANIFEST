@@ -9,6 +9,8 @@ t/00-load.t
 t/01-string.t
 t/02-list.t
 t/03-hashref.t
+t/04-precision.t
+t/05-unit-shortcuts-integrity.t
 xt/pod-coverage.t
 xt/pod.t
 xt/kwalitee.t

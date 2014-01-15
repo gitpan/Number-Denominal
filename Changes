@@ -1,5 +1,13 @@
 Revision history for Number-Denominal
 
+1.101   2014-01-14
+        - Fixed RT#92145: https://rt.cpan.org/Ticket/Display.html?id=92145
+          (poor example in the POD)
+        - Fixed RT92146: #https://rt.cpan.org/Ticket/Display.html?id=92146
+          (new feature whishlist: precision limit)
+        - Added extra tests
+        - Refactored the code to be more maintanable
+
 1.004   2014-01-11
         - Fixed POD grammatical error
 

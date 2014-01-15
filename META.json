@@ -37,7 +37,7 @@
    "provides" : {
       "Number::Denominal" : {
          "file" : "lib/Number/Denominal.pm",
-         "version" : "1.004"
+         "version" : "1.101"
       }
    },
    "release_status" : "stable",
@@ -46,5 +46,5 @@
          "http://www.perlfoundation.org/artistic_license_2_0"
       ]
    },
-   "version" : "1.004"
+   "version" : "1.101"
 }
