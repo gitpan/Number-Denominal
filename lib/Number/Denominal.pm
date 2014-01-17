@@ -8,7 +8,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(denominal  denominal_hashref  denominal_list);
 
-our $VERSION = '1.101';
+our $VERSION = '1.102';
 
 
 
@@ -37,7 +37,10 @@ sub _denominal {
     my @bits;
     my $step = 1; # steps for precision, if enabled
     my $pre_bit;  # a "pre" bit, again for precision to handle rounding.
+    my @ordered_bit_names; # need this for missing bits in denominal_list
     for my $bit ( _get_bits( $num, @$den ) ) {
+        push @ordered_bit_names, $bit->{name}[0];
+
         $bit->{num} = sprintf '%d', $num / $bit->{divisor};
         $num = $num - $bit->{num} * $bit->{divisor};
 
@@ -86,8 +89,21 @@ sub _denominal {
     # ... of output is wanted
     for ( @bits ) {
         push @result, $mode eq 'hashref' ? ( $_->{name}[0] => $_->{num} )
-            : $mode eq 'list' ? $_->{num}
+            : $mode eq 'list' ? { num => $_->{num}, name => $_->{name}[0] }
                 : $_->{num} . ' ' . $_->{name}[ $_->{num} == 1 ? 0 : 1 ];
+    }
+
+    if ( $mode eq 'list' ) {
+        my @temp_result = @result;
+        @result = ();
+        my %bits_in_result;
+        @bits_in_result{ map $_->{name}, @temp_result }
+        = map $_->{num}, @temp_result;
+
+        for ( @ordered_bit_names ) {
+            push @result, exists $bits_in_result{ $_ }
+                ? $bits_in_result{ $_ } : 0;
+        }
     }
 
     return $mode eq 'hashref'
@@ -124,8 +140,9 @@ sub _process_den {
     my ( $mode, $den ) = @_;
 
     if ( @$den == 1 and ref $den->[0] eq 'ARRAY' ) {
-        @$den = map +( $_ => $_ ), @{ $den->[0] };
-        push @$den, 'last';
+        my $idx = 0;
+        @$den = map +( 'el' . $idx++ => $_ ), @{ $den->[0] };
+        push @$den, 'el', $idx;
         $mode = 'list';
     }
     elsif ( @$den == 1 and ref $den->[0] eq 'SCALAR' ) {
@@ -501,12 +518,11 @@ The output will be C<1 day>. What happens is a 2-unit precision rounds
 off to C<23 hours and 60 seconds>, which rounds off to C<24 hours>, and
 we have a larger unit that is equal to 24 hours: C<1 day>.
 
-=head2 C<denominal_list>
+For C<denominal_list>, C<precision> affects how many units can have
+values other than zero. Units outside C<precision> will have their values
+as zero.
 
-B<BUG BUG BUG!!!!> Currently, C<denominal_list> would plainly return
-the unitless numbers, regardless of what unit they belong to, so it's
-pretty useless, especially when using
-C<< { precision => FOO } >> option. Fix will come in soon :)
+=head2 C<denominal_list>
 
     ## These two are equivalent
 
@@ -514,6 +530,8 @@ C<< { precision => FOO } >> option. Fix will come in soon :)
         $number,
         second => 60 => minute => 60 => hour => 24 => day => 7 => 'week'
     );
+    ## @bits will always contain 5 elements, some of which might be 0
+
 
     my @bits = denominal_list(
         $number,
@@ -523,12 +541,19 @@ C<< { precision => FOO } >> option. Fix will come in soon :)
 Functions the same as C<denominal()>, except it B<returns> a list of unit
 values, instead of a string. (e.g. when C<denominal()> would return
 "8 hours, 23 minutes, and 5 seconds", C<denominal_list()> would return
-a list of three numbers: C<8, 23, 5>).
+a list of numbers—C<8, 23, 5>—for hours, minutes, seconds, and
+C<0> B<for all the remaining units>).
 
 Another shortcut is possible with C<denominal_list()>. Instead of giving
 each unit a name, you can call C<denominal_list()> with just
 B<two arguments> and pass an arrayref as the second
 argument, containing a list of numbers defining unit denominations.
+
+B<Note on precision:> if you're using C<precision> argument to specify
+the precision of units (see its description in L<OPTIONS HASHREF>
+section above), then it will affect how many units will have values
+other than zeros; i.e. you'll still have the same number of elements
+as without C<precision>.
 
 =head2 C<denominal_hashref>
 

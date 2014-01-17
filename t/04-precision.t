@@ -41,12 +41,12 @@ is(
     '3 hours, 31 minutes, and 1 second',
     'testing large precision value / units shortcut',
 );
-#### MAKE SURE THE TEST BELOW STAYS ON PROPER LINE; OR CHANGE $_EXPECTED_
+
 eval { denominal( 3*3600 + 31*60 + 1, \'time', { precision => 0 } ) };
-is(
+like(
     $@,
-    'precision argument takes positive integers only, '
-        . 'but its value is 0 at t/04-precision.t line 45.' . "\n",
+    qr{\Qprecision argument takes positive integers only, \E
+         \Qbut its value is 0 at t/04-precision.t line \E\d+}x,
     'testing invalid precision value',
 );
 
@@ -112,6 +112,6 @@ is_deeply(
 
 is_deeply(
     [ denominal_list( 23*3600 + 59*60 + 59, \'time', { precision => 2 } ) ],
-    [ 1 ],
+    [ 0, 1, 0, 0, 0, ],
     'testing multi-unit rounding with precision == 2; denominal_list',
 );

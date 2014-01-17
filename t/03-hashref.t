@@ -23,14 +23,14 @@ cmp_deeply(
 );
 
 cmp_deeply(
-    $data,
     denominal_hashref( 12661, second => 60 => minute => 60 => 'hour', ),
+    $data,
     'testing unit shortcut',
 );
 
 cmp_deeply(
-    $data,
     denominal_hashref( 12661, \'time' ),
+    $data,
     'testing unit set shortcut',
 );
 

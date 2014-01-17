@@ -1,5 +1,11 @@
 Revision history for Number-Denominal
 
+1.102   2014-01-16
+        - Fixed a test that was broken on Windows
+        - Fixed RT#92155: https://rt.cpan.org/Ticket/Display.html?id=92155
+          (denominal_list returned numbers without any info about the
+          units)
+
 1.101   2014-01-14
         - Fixed RT#92145: https://rt.cpan.org/Ticket/Display.html?id=92145
           (poor example in the POD)

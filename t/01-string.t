@@ -22,14 +22,14 @@ is(
 );
 
 is(
-    $data,
     denominal( 12661, second => 60 => minute => 60 => 'hour', ),
+    $data,
     'testing unit shortcut',
 );
 
 is(
-    $data,
     denominal( 12661, \'time' ),
+    $data,
     'testing "time" units shortcut',
 );
 

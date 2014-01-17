@@ -17,7 +17,7 @@ name: Number-Denominal
 provides:
   Number::Denominal:
     file: lib/Number/Denominal.pm
-    version: 1.101
+    version: 1.102
 requires:
   Carp: 1.26
   Exporter: 0
@@ -25,4 +25,4 @@ requires:
   perl: 5.006
 resources:
   license: http://www.perlfoundation.org/artistic_license_2_0
-version: 1.101
+version: 1.102

@@ -268,18 +268,19 @@ EXPORTS
     off to "23 hours and 60 seconds", which rounds off to "24 hours", and we
     have a larger unit that is equal to 24 hours: "1 day".
 
-  "denominal_list"
-    BUG BUG BUG!!!! Currently, "denominal_list" would plainly return the
-    unitless numbers, regardless of what unit they belong to, so it's pretty
-    useless, especially when using "{ precision => FOO }" option. Fix will
-    come in soon :)
+    For "denominal_list", "precision" affects how many units can have values
+    other than zero. Units outside "precision" will have their values as
+    zero.
 
+  "denominal_list"
         ## These two are equivalent
 
         my @bits = denominal_list(
             $number,
             second => 60 => minute => 60 => hour => 24 => day => 7 => 'week'
         );
+        ## @bits will always contain 5 elements, some of which might be 0
+
 
         my @bits = denominal_list(
             $number,
@@ -289,12 +290,19 @@ EXPORTS
     Functions the same as "denominal()", except it returns a list of unit
     values, instead of a string. (e.g. when "denominal()" would return "8
     hours, 23 minutes, and 5 seconds", "denominal_list()" would return a
-    list of three numbers: "8, 23, 5").
+    list of numbers—"8, 23, 5"—for hours, minutes, seconds, and 0 for all
+    the remaining units).
 
     Another shortcut is possible with "denominal_list()". Instead of giving
     each unit a name, you can call "denominal_list()" with just two
     arguments and pass an arrayref as the second argument, containing a list
     of numbers defining unit denominations.
+
+    Note on precision: if you're using "precision" argument to specify the
+    precision of units (see its description in "OPTIONS HASHREF" section
+    above), then it will affect how many units will have values other than
+    zeros; i.e. you'll still have the same number of elements as without
+    "precision".
 
   "denominal_hashref"
         ## These two are equivalent
