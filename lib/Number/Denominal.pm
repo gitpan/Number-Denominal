@@ -8,7 +8,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(denominal  denominal_hashref  denominal_list);
 
-our $VERSION = '1.102';
+our $VERSION = '1.103';
 
 
 
@@ -581,9 +581,16 @@ will be absent from the hashref.
 
 =back
 
+=head1 REPOSITORY
+
+The code for this module is available at
+L<https://github.com/zoffixznet/Number-Denominal> repository.
+
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-number-denominal at rt.cpan.org>, or through
+Please report any bugs or feature requests to
+on github L<https://github.com/zoffixznet/Number-Denominal>, or
+C<bug-number-denominal at rt.cpan.org>, or through
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Number-Denominal>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 

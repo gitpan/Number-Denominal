@@ -1,5 +1,9 @@
 Revision history for Number-Denominal
 
+1.103   2014-01-22
+        - Converted to dzil
+        - Fixed a test failing on Windows
+
 1.102   2014-01-16
         - Fixed a test that was broken on Windows
         - Fixed RT#92155: https://rt.cpan.org/Ticket/Display.html?id=92155

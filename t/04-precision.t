@@ -46,7 +46,7 @@ eval { denominal( 3*3600 + 31*60 + 1, \'time', { precision => 0 } ) };
 like(
     $@,
     qr{\Qprecision argument takes positive integers only, \E
-         \Qbut its value is 0 at t/04-precision.t line \E\d+}x,
+         \Qbut its value is 0 at t\E[\\/]\Q04-precision.t line \E\d+}x,
     'testing invalid precision value',
 );
 
