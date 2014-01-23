@@ -1,5 +1,8 @@
 Revision history for Number-Denominal
 
+1.104   2014-01-23
+        - Fixed up some dzil meta resources
+
 1.103   2014-01-22
         - Converted to dzil
         - Fixed a test failing on Windows

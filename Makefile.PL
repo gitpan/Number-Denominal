@@ -26,7 +26,7 @@ my %WriteMakefileArgs = (
     "List::ToHumanString" => "1.002"
   },
   "TEST_REQUIRES" => {},
-  "VERSION" => "1.103",
+  "VERSION" => "1.104",
   "test" => {
     "TESTS" => "t/*.t"
   }

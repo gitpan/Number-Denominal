@@ -18,5 +18,6 @@ requires:
   List::ToHumanString: 1.002
   perl: 5.006
 resources:
-  repository: https://github.com/zoffixznet/Number-Denominal.git
-version: 1.103
+  bugtracker: https://github.com/zoffixznet/Number-Denominal/issues
+  repository: git://github.com/zoffixznet/Number-Denominal.git
+version: 1.104
