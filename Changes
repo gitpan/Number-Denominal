@@ -1,5 +1,8 @@
 Revision history for Number-Denominal
 
+1.105   2014-01-24
+        - Added missing test prereqs
+
 1.104   2014-01-23
         - Fixed up some dzil meta resources
 

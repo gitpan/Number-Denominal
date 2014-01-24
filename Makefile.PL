@@ -25,8 +25,11 @@ my %WriteMakefileArgs = (
     "Exporter" => 0,
     "List::ToHumanString" => "1.002"
   },
-  "TEST_REQUIRES" => {},
-  "VERSION" => "1.104",
+  "TEST_REQUIRES" => {
+    "Test::Deep" => "0.11",
+    "Test::More" => "0.88"
+  },
+  "VERSION" => "v1.105",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -36,7 +39,9 @@ my %WriteMakefileArgs = (
 my %FallbackPrereqs = (
   "Carp" => "1.26",
   "Exporter" => 0,
-  "List::ToHumanString" => "1.002"
+  "List::ToHumanString" => "1.002",
+  "Test::Deep" => "0.11",
+  "Test::More" => "0.88"
 );
 
 
