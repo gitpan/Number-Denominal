@@ -3,8 +3,9 @@ abstract: 'break up numbers into arbitrary denominations'
 author:
   - 'Zoffix Znet <cpan@zoffix.com>'
 build_requires:
-  Test::Deep: 0.11
-  Test::More: 0.88
+  Test::Deep: 0
+  Test::More: 0
+  perl: 5.006
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
@@ -15,11 +16,12 @@ meta-spec:
   version: 1.4
 name: Number-Denominal
 requires:
-  Carp: 1.26
+  Carp: 0
   Exporter: 0
   List::ToHumanString: 1.002
-  perl: 5.006
+  strict: 0
+  warnings: 0
 resources:
   bugtracker: https://github.com/zoffixznet/Number-Denominal/issues
   repository: git://github.com/zoffixznet/Number-Denominal.git
-version: v1.105
+version: v1.106

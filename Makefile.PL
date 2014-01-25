@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use 5.006;
+
 
 use ExtUtils::MakeMaker 6.30;
 
@@ -21,15 +21,17 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "Number::Denominal",
   "PREREQ_PM" => {
-    "Carp" => "1.26",
+    "Carp" => 0,
     "Exporter" => 0,
-    "List::ToHumanString" => "1.002"
+    "List::ToHumanString" => "1.002",
+    "strict" => 0,
+    "warnings" => 0
   },
   "TEST_REQUIRES" => {
-    "Test::Deep" => "0.11",
-    "Test::More" => "0.88"
+    "Test::Deep" => 0,
+    "Test::More" => 0
   },
-  "VERSION" => "v1.105",
+  "VERSION" => "v1.106",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -37,11 +39,13 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Carp" => "1.26",
+  "Carp" => 0,
   "Exporter" => 0,
   "List::ToHumanString" => "1.002",
-  "Test::Deep" => "0.11",
-  "Test::More" => "0.88"
+  "Test::Deep" => 0,
+  "Test::More" => 0,
+  "strict" => 0,
+  "warnings" => 0
 );
 
 

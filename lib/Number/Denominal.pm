@@ -2,13 +2,13 @@ package Number::Denominal;
 
 use strict;
 use warnings;
-use List::ToHumanString;
+use List::ToHumanString 1.002;
 use Carp;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(denominal  denominal_hashref  denominal_list);
 
-our $VERSION = '1.105';
+our $VERSION = '1.106';
 
 
 

@@ -1,5 +1,9 @@
 Revision history for Number-Denominal
 
+1.106   2014-01-25
+        - Fixed broken prereqs (requiring too high Carp version, when
+          it wasn't needed to be that high)
+
 1.105   2014-01-24
         - Added missing test prereqs
 
