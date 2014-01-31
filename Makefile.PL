@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-
+use 5.006;
 
 use ExtUtils::MakeMaker 6.30;
 
@@ -28,12 +28,15 @@ my %WriteMakefileArgs = (
     "warnings" => 0
   },
   "TEST_REQUIRES" => {
+    "File::Spec" => 0,
+    "IO::Handle" => 0,
+    "IPC::Open3" => 0,
     "Test::Deep" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "v1.106",
+  "VERSION" => "2.001001",
   "test" => {
-    "TESTS" => "t/*.t"
+    "TESTS" => "t/*.t t/regression/*.t"
   }
 );
 
@@ -41,6 +44,9 @@ my %WriteMakefileArgs = (
 my %FallbackPrereqs = (
   "Carp" => 0,
   "Exporter" => 0,
+  "File::Spec" => 0,
+  "IO::Handle" => 0,
+  "IPC::Open3" => 0,
   "List::ToHumanString" => "1.002",
   "Test::Deep" => 0,
   "Test::More" => 0,

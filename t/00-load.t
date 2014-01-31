@@ -13,4 +13,6 @@ BEGIN {
     use_ok( 'Number::Denominal' ) || print "Bail out!\n";
 }
 
+$Number::Denominal::VERSION ||= '[undef]';
+
 diag( "Testing Number::Denominal $Number::Denominal::VERSION, Perl $], $^X" );

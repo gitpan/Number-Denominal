@@ -8,9 +8,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(denominal  denominal_hashref  denominal_list);
 
-our $VERSION = '1.106';
-
-
+our $VERSION = '2.001001'; # VERSION
 
 sub denominal {
     my ( $num, @den ) = @_;
@@ -38,7 +36,7 @@ sub _denominal {
     my $step = 1; # steps for precision, if enabled
     my $pre_bit;  # a "pre" bit, again for precision to handle rounding.
     my @ordered_bit_names; # need this for missing bits in denominal_list
-    for my $bit ( _get_bits( $num, @$den ) ) {
+    for my $bit ( _get_bits( @$den ) ) {
         push @ordered_bit_names, $bit->{name}[0];
 
         $bit->{num} = sprintf '%d', $num / $bit->{divisor};
@@ -51,7 +49,7 @@ sub _denominal {
 
             # add current element and pre bit, for sake of calculations
             # I should really really refactor this crap to something sane
-            unshift @bits, $pre_bit;
+            unshift @bits, $pre_bit if defined $pre_bit;
             push @bits, +{ %$bit };
 
             for ( reverse 0 .. $#bits ) {
@@ -113,7 +111,7 @@ sub _denominal {
 }
 
 sub _get_bits {
-    my ( $num, @den ) = @_;
+    my @den = @_;
 
     my @bits;
     my $divisor = 1;
@@ -225,6 +223,8 @@ __END__
 
 =encoding utf8
 
+=for stopwords LeoNerd scalarref
+
 =head1 NAME
 
 Number::Denominal - break up numbers into arbitrary denominations
@@ -237,33 +237,33 @@ Number::Denominal - break up numbers into arbitrary denominations
     my ( $sec, $min, $hr ) = (localtime)[0..2];
     my $seconds = $hr*3600 + $min*60 + $sec;
 
-    say 'So far today you lived for ',
+    print 'So far today you lived for ',
         denominal($seconds,
             [ qw/second seconds/ ] =>
                 60 => [ qw/minute minutes/ ] =>
                     60 => [ qw/hour hours/ ]
-        );
+        ) . "\n";
     ## Prints: So far today you lived for 23 hours,
     ## 48 minutes, and 23 seconds
 
     # Same thing but with a 'time' unit set shortcut:
-    say 'So far today you lived for ', denominal($seconds, \'time');
+    print 'So far today you lived for ', denominal($seconds, \'time');
 
-    say 'If there were 100 seconds in a minute, and 100 minutes in an hour,',
+    print 'If there were 100 seconds in a minute, and 100 minutes in an hour,',
         ' then you would have lived today for ',
         denominal(
             # This is a shortcut for units that pluralize by adding "s"
             $seconds, second => 100 => minute => 100 => 'hour',
-        );
+        ) . "\n";
     ## Prints: If there were 100 seconds in a minute, and 100 minutes
     ## in an hour, then you would have lived today for 8 hours, 57 minutes,
     ## and 3 seconds
 
-    say 'And if we called seconds "foos," minutes "bars," and hours "bers"',
+    print 'And if we called seconds "foos," minutes "bars," and hours "bers"',
         ' then you would have lived today for ',
         denominal(
             $seconds, foo => 100 => bar => 100 => 'ber',
-        );
+        ) . "\n";
     ## Prints: And if we called seconds "foos," minutes "bars," and hours
     ## "bers" then you would have lived today for 8 bers, 57 bars, and 3 foos
 
@@ -281,9 +281,8 @@ Number::Denominal - break up numbers into arbitrary denominations
     );
 
     # We can also handle precision (with rounding):
-    print denominal( 3*3600 + 31*60 + 40, \'time', { precision => 2 } ),
+    print denominal( 3*3600 + 31*60 + 40, \'time', { precision => 2 } );
     # Prints '3 hours and 32 minutes'
-);
 
 =head1 DESCRIPTION
 
@@ -505,7 +504,7 @@ we set C<precision> to C<1> unit:
 We'll get C<4 hours> as output.
 
 It is possible to get fewer than C<precision> units in the output, even
-if without precion you'd get more than 1. For example,
+if without precision you'd get more than 1. For example,
 
     denominal( 23*3600 + 59*60 + 59, \'time', );
 
@@ -583,83 +582,21 @@ will be absent from the hashref.
 
 =head1 REPOSITORY
 
-The code for this module is available at
-L<https://github.com/zoffixznet/Number-Denominal> repository.
+Fork this module on GitHub:
+L<https://github.com/zoffixznet/Number-Denominal>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to
-on github L<https://github.com/zoffixznet/Number-Denominal>, or
-C<bug-number-denominal at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Number-Denominal>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+To report bugs or request features, please use
+L<https://github.com/zoffixznet/Number-Denominal/issues>
 
-=head1 SUPPORT
+If you can't access GitHub, you can email your request
+to C<bug-Number-Denominal at rt.cpan.org>
 
-You can find documentation for this module with the perldoc command.
+=head1 LICENSE
 
-    perldoc Number::Denominal
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker (report bugs here)
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Number-Denominal>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Number-Denominal>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Number-Denominal>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Number-Denominal/>
-
-=back
-
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2013 Zoffix Znet.
-
-This program is free software; you can redistribute it and/or modify it
-under the terms of the the Artistic License (2.0). You may obtain a
-copy of the full license at:
-
-L<http://www.perlfoundation.org/artistic_license_2_0>
-
-Any use, modification, and distribution of the Standard or Modified
-Versions is governed by this Artistic License. By using, modifying or
-distributing the Package, you accept this license. Do not use, modify,
-or distribute the Package, if you do not accept this license.
-
-If your Modified Version has been derived from a Modified Version made
-by someone other than you, you are nevertheless required to ensure that
-your Modified Version complies with the requirements of this license.
-
-This license does not grant you the right to use any trademark, service
-mark, tradename, or logo of the Copyright Holder.
-
-This license includes the non-exclusive, worldwide, free-of-charge
-patent license to make, have made, use, offer to sell, sell, import and
-otherwise transfer the Package with respect to any patent claims
-licensable by the Copyright Holder that are necessarily infringed by the
-Package. If you institute patent litigation (including a cross-claim or
-counterclaim) against any party alleging that the Package constitutes
-direct or contributory patent infringement, then this Artistic License
-to you shall terminate on the date that such litigation is filed.
-
-Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER
-AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES.
-THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY
-YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR
-CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR
-CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF THE USE OF THE PACKAGE,
-EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+You can use and distribute this module under the same terms as Perl itself.
+See the C<LICENSE> file included in this distribution for complete
+details.
 
 =cut
